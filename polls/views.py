@@ -2099,3 +2099,7 @@ def snapshot_vds(request, srv_id, vds_id):
                 add_log(host.hostname, error_msg.message, request.user.id)
 
     return render_to_response('dom_snapshot.html', locals(), context_instance=RequestContext(request))
+
+
+def page_setup(request):
+    return render_to_response('setup.html', locals(), context_instance=RequestContext(request))
