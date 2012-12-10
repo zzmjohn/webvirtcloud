@@ -1,8 +1,8 @@
 # Applince WebVirtCloud
 
-## 1. Introduction
+## 1. Info
 
-WebVirtCloud is a libvirt-based Web interface for managing virtual machines. It allows you to create and configure new domains, and adjust a domain's resource allocation. A VNC viewer a full graphical console to the guest domain. KVM is currently the only hypervisor supported.
+WebVirtCloud is a libvirt-based Web interface for managing private and public clouds. It allows you to delegate, create and configure new domains. A VNC viewer a full graphical console to the guest domain. KVM is currently the only hypervisor supported.
 
 ### Technology:
 
