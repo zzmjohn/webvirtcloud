@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Snaphots - WebVirtCloud{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li>
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li>
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li class="active">
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Snaphosts Virtual Instances</h2>
+        <p><a href="/host/{{ srv_id }}"><i class="icon-chevron-left"></i> Back</a></p>
+        <hr>
+        {% if snapshots %}
+        <table class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>VM's Name</th>
+              <th>Qemu Name</th>
+              <th>Username</th>
+              <th>Flavor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key, value in snapshots.items %} 
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><a href="/snapshot/{{ srv_id }}/{{ key }}/">{{ value.0 }}</a></td>
+              <td>{{ value.1 }}</td>
+              <td><a href="{% if request.user.id == value.2 %}/accounts/edit/{% else %}/users/{{ value.2 }}/{% endif %}">{{ value.3 }}</a></td>
+              <td>{{ value.4 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="pagination-centered">
+          <br>
+          <h4>You no have snapshots</h4>
+        </div>
+        {% endif %}
+      </div> <!-- /span9 -->
+    </div> <!-- /row -->
+{% endblock %}

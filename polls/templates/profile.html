@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Account - WebVirtCloud{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li>
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li>
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li>
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Profile Infomation</h2>
+        <hr>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-block alert-success">
+          <a class="close" data-dismiss="alert">&times;</a>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% if errors %}
+        {% for error in errors %}
+        <div class="alert alert-block alert-error">
+          <p>{{ error }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <form method="post" action="" id="edit-profile" class="form-horizontal">{% csrf_token %}
+          <fieldset>
+            <div class="control-group">                     
+              <label class="control-label" for="username">Username</label>
+              <div class="controls">
+                <input type="text" class="input-large disabled" id="username" value="{{ user }}" disabled>
+                <a href="#addModal" class="btn btn-primary" data-toggle="modal">Change Password</a>
+                <p class="help-block">Your username is for logging in and cannot be changed.</p>
+              </div> <!-- /controls -->       
+            </div> <!-- /control-group -->
+            <div class="control-group">                     
+              <label class="control-label" for="firstname">First Name</label>
+              <div class="controls">
+                <input type="text" class="input-large" name="firstname" id="firstname" value="{{ user.first_name }}">
+              </div> <!-- /controls -->       
+            </div> <!-- /control-group -->
+            <div class="control-group">                     
+              <label class="control-label" for="lastname">Last Name</label>
+              <div class="controls">
+                <input type="text" class="input-large" name="lastname" id="lastname" value="{{ user.last_name }}">
+              </div> <!-- /controls -->       
+            </div> <!-- /control-group -->
+            <div class="control-group">                     
+              <label class="control-label" for="email">Email Address</label>
+              <div class="controls">
+                <input type="email" class="input-large" name="email" id="email" value="{{ user.email }}">
+              </div> <!-- /controls -->       
+            </div> <!-- /control-group -->
+            <br><br>
+            <div class="control-group">                     
+              <label class="control-label">Last login</label>
+              <div class="controls">
+                <input type="text" class="input-large disabled" value="{{ user.last_login|date:"M j, Y H:i" }}" disabled>
+              </div> <!-- /controls -->       
+            </div> <!-- /control-group -->
+            <div class="control-group">                     
+              <label class="control-label">Create login</label>
+              <div class="controls">
+                <input type="text" class="input-large disabled" value="{{ user.date_joined|date:"M j, Y H:i" }}" disabled>
+                <br><br>
+                <button type="submit" name="update" class="btn btn-success">Submit</button>
+              </div> <!-- /controls -->       
+            </div> <!-- /control-group -->
+          </fieldset>
+        </form>
+        <div id="addModal" class="modal hide fade">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3 id="myModalLabel">Change Password</h3>
+          </div>
+        <div class="modal-body">
+          <form method="post" action="" class="form-horizontal">{% csrf_token %}
+            <fieldset><br>
+              <div class="control-group">                     
+                <label class="control-label" for="password1">Password</label>
+                <div class="controls">
+                  <input type="hidden" name="user_id" value="{{ user.id }}">
+                  <input type="password" class="input-medium" id="id_password1" name="password1" placeholder="*********">
+                </div> <!-- /controls -->       
+              </div> <!-- /control-group -->
+              <div class="control-group">                     
+                <label class="control-label" for="password2">Confirm</label>
+                <div class="controls">
+                  <input type="password" class="input-medium" id="id_password2" name="password2" placeholder="*********">
+                </div> <!-- /controls -->       
+              </div> <!-- /control-group -->
+            </fieldset>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal">Cancel</button>
+            <input class="btn btn-success" name="newpasswd" type="submit" value="Submit">
+          </form>
+         </div> 
+        </div> <!-- /addModal -->
+      </div> <!-- /span7 -->
+    </div> <!-- /row -->
+{% endblock %}

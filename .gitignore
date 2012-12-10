@@ -1,0 +1,4 @@
+webvirtcloud.db
+*.pyc
+.DS_Store
+._*

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Overview - WebVirtCloud{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li>
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li>
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li class="active">
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Overview</h2>
+        <p><a href="/manage"><i class="icon-chevron-left"></i> Back</a></p>
+        <hr>
+        {% if errors %}
+        {% for error in errors %}
+        <div class="alert alert-block alert-error">
+          <p>{{ error }}</p>
+        </div>
+        {% endfor %}
+
+        {% endif %}
+        {% if not conn.keys.0 == 'error' %}
+        <button class="btn btn-success" onClick="location.href='/newvm/{{ srv_id }}/';">Create VM</button>
+        <button class="btn btn-success" onClick="location.href='/network/{{ srv_id }}/';">Network Pool</button>
+        <button class="btn btn-success" onClick="location.href='/storage/{{ srv_id }}/';">Storage Pool</button>
+        <button class="btn btn-success" onClick="location.href='/snapshot/{{ srv_id }}/';">Snapshots</button>
+        {% endif %}
+
+        <div class="row">
+        {% if not conn.keys.0 == 'error' %}
+          <br>
+          <div class="span3">
+              <p>Hostname</p>
+              <p>Processor(s)</p>
+              <p>CPU utilization</p>
+              <p>Memory ({{ host_info.4.0|filesizeformat }} / {{ host_info.4.1|filesizeformat }})</p>
+              <p>Libvirt version</p>
+          </div>
+          <div class="span4">
+            <p><b>{{ host_info.0 }}</b></p>
+            <p>{{ host_info.1 }} x {{ host_info.2 }}</p>
+            <p>Usage: {{ host_info.3 }} %</p>
+            <p>Usage: {{ host_info.4.2 }} %</p>
+            <p>{{ host_info.5 }}</p>
+          </div>
+          
+          {% if not all_vds %}
+          <div class="span2">
+            <form action="/host/{{ srv_id }}/" method="post">{% csrf_token %}
+              <input class="btn btn-danger" name="delhost" type="submit" value="Delete Host" onclick="return confirm('{% trans "Are you sure?" %}')">
+            </form>
+          </div>
+          {% else %}
+          <div class="span2">
+            <a class="btn btn-danger disabled">Delete Host</a>
+          </div>
+          {% endif %}
+          
+          {% else %}
+          <div class="pagination-centered">
+            <br>
+            <h5 class="text-error">Libvirt: {{ conn.values.0 }}</h5>
+            <br>
+            {% if not all_vds %}
+            <form action="/host/{{ srv_id }}/" method="post">{% csrf_token %}
+              <input class="btn btn-danger" name="delhost" type="submit" value="Delete Host" onclick="return confirm('{% trans "Are you sure?" %}')">
+            </form>
+            {% else %}
+            <a class="btn btn-danger disabled">Delete Host</a>
+            {% endif %}
+          </div>
+        {% endif %}
+        <div class="span7">
+          <h3>Virtual Machines</h3>
+          <hr>
+          {% if all_vds %}
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>VM's Name</th>
+                <th>Qemu Name</th>
+                <th>Username</th>
+                <th>VCPU</th>
+                <th>RAM</th>
+                <th>HDD</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for id, info in all_vds.items %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a href="/vds/{{ id }}/">{{ info.0 }}</a></td>
+                <td>{{ info.1 }}</td>
+                <td><a href="{% if request.user.id == info.2 %}/accounts/edit/{% else %}/users/{{ info.2 }}/{% endif %}">{{ info.3 }}</a></td>
+                <td>{{ info.4 }}</td>
+                <td>{{ info.5 }} Mb</td>
+                <td>{{ info.6 }} Gb</td>                  
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="pagination-centered">
+            <h4 class="text-error">You no have VDS</h4>
+          </div>
+          {% endif %}
+        </div> <!-- /span7 -->
+      </div> <!-- /row -->
+    </div> <!-- /span7 -->
+  </div> <!-- /row -->
+{% endblock %}

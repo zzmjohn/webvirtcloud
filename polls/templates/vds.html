@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Cloud Server - WebVirtCloud{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li>
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li class="active">
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li>
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li>
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Virtual Instance</h2>
+        <hr>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-block alert-success">
+          <a class="close" data-dismiss="alert">&times;</a>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% if errors %}
+        {% for error in errors %}
+        <div class="alert alert-block alert-error">
+          <p>{{ error }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <ul>
+          <li>Action For This Server</li><br>
+          <form action="/vds/{{ vds_id }}/" method="post">{% csrf_token %}
+            {% if dom.info.0 = 5 %}
+            <a href="#console" role="button" class="btn disabled" style="height:40px;width:60px;"><i class="icon-align-justify"></i><br>Console</a>
+            {% else %}
+            <a href="#console" role="button" class="btn" data-toggle="modal" style="height:40px;width:60px;" onclick="open_vnc()"><i class="icon-align-justify"></i><br>Console</a>
+            {% endif %}
+            {% if dom.info.0 = 5 %}
+            <button type="submit" class="btn" name="start" value="Start" style="height:50px;width:80px;"><i class="icon-off"></i><br>Start</button>
+            {% endif %}
+            {% if dom.info.0 = 1 %}
+            <a href="#rebootModal" role="button" class="btn" data-toggle="modal" style="height:40px;width:60px;"><i class="icon-off"></i><br>Reboot</a>
+            {% endif %}
+            {% if dom.info.0 = 3 %}
+            <a href="#" role="button" class="btn" style="height:40px;width:60px;"><i class="icon-off"></i><br>Blocked</a>
+            {% endif %}
+            {% if dom.info.0 = 3 %}
+            <a href="#" role="button" class="btn" data-toggle="modal" style="height:40px;width:60px;"><i class="icon-remove"></i><br>Delete</a>
+            {% else %}
+            <a href="#deleteModal" role="button" class="btn" data-toggle="modal" style="height:40px;width:60px;"><i class="icon-remove"></i><br>Delete</a>
+            {% endif %}
+            
+            {% if not is_user %}
+            {% if dom.info.0 = 3 %}
+            <button type="submit" name="resume" role="button" class="btn" style="height:50px;width:80px;"><i class="icon-play"></i><br>Resume</button>
+            {% endif %}
+            {% if dom.info.0 = 1 %}
+            <button type="submit" name="suspend" role="button" class="btn" style="height:50px;width:80px;"><i class="icon-pause"></i><br>Suspend</button>
+            {% endif %}
+            {% if dom.info.0 = 5 %}
+            <a role="button" class="btn disabled" style="height:40px;width:60px;"><i class="icon-download-alt"></i><br>Suspend</a>
+            <button type="submit" name="snapshot" role="button" class="btn" style="height:50px;width:80px;"><i class="icon-download-alt"></i><br>Snapshot</button>
+            {% else %}
+            <a role="button" class="btn disabled" style="height:40px;width:60px;"><i class="icon-download-alt"></i><br>Snapshot</a>
+            {% endif %}
+
+            {% endif %}
+           </form>
+          <hr>
+          <li>Name & Status</li><br>
+          <div class="pagination-centered">
+            <p><b>Name:</b> {{ vds.name }}</p>
+            <p><b>Status:</b> <font color={% if dom.info.0 = 5 %}"red">Not Active{% endif %}{% if dom.info.0 = 1 %}"green">Active{% endif %}{% if dom.info.0 = 3 %}"orange">Blocked{% endif %}</font></p>
+            <p><b>Age:</b> {{ vds_age.days }} Days</p>
+          </div>
+          <hr>
+          <li>Techniacl Details</li><br>
+          <div class="pagination-centered">
+            <p><b>VCPU:</b> {{ flavor.vcpu }}</p>
+            <p><b>RAM:</b> {{ flavor.ram }} MB</p>
+            <p><b>Disk Space:</b> {{ flavor.hdd }} GB</p>
+            {% if vds.desc %}<p>{{ vds.desc }}</p>{% endif %}
+          </div>
+          <hr>
+          <li>Media Details</li><br>
+          <div class="pagination-centered">
+            {% if media == None %}{% else %}<b>Connected Image:</b> {{ media }}{% endif %}
+            <form action="/vds/{{ vds_id }}/" method="post">{% csrf_token %}
+              {% if media %}
+              <br>
+              <input type="hidden" name="iso_img" value="{{ media }}">
+              <input type="submit" class="btn"  name="remove_iso" value="Disconnect" onclick="return confirm('{% trans "Are you sure?" %}')">
+              {% else %}
+              <b>Images:</b> <select name="iso_img" class="input-large">
+              {% if iso_images %}
+                {% for iso in iso_images %}
+                  <option value="{{ iso }}">{{ iso }}</option>
+                {% endfor %}
+              {% else %}
+                <option value="none">{% trans "None" %}</option>
+              {% endif %}
+              </select>
+              <br />
+              {% if iso_images %}
+              <input type="submit" class="btn" name="add_iso" value="Connect">
+              {% else %}
+              <a class="btn disabled" name="connect">Connect</a>
+              {% endif %}
+              {% endif %}
+            </form>
+          </div>
+        </ul>
+      </div> <!-- /span7 -->
+    </div> <!-- /row -->
+  
+  <div id="rebootModal" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3 id="rebootModalLabel">Reboot Server</h3>
+    </div>
+    <div class="modal-body">
+      <p>Shutdown send via ACPI current shutdown system. Reboot send hard signal to hult server. Power is lost immediately.</p>
+      <form class="form-horizontal" action="/vds/{{ vds_id }}/" method="post">{% csrf_token %}
+        <fieldset>
+          <div class="control-group"><br>
+          <label class="control-label">Action:</label>
+            <div class="controls">
+               <label class="radio">
+                <input type="radio" name="power" value="shutdown"/>Shutdown</label>
+               <label class="radio">
+                <input type="radio" name="power" value="reboot"/>Reboot</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal">Cancel</button>
+        <input class="btn btn-primary" type="submit" value="Send">
+        </form>
+      </div>
+  </div> <!-- /rebootModal -->
+
+  <div id="deleteModal" class="modal hide fade">
+    <div class="modal-header">
+      <form class="form-horizontal" action="/vds/{{ vds_id }}/" method="post">{% csrf_token %}
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3 id="deleteModalLabel">Permanently delete {{ vds.name }}</h3>
+    </div>
+    <div class="modal-body">
+      <p>By deleting the following Cloud Server your will lose all data. The server will be removed from your account.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal">Cancel</button>
+        <input class="btn btn-danger" type="submit" name="delete" value="Delete">
+      </form>
+    </div>
+  </div> <!-- /deleteModal -->
+
+  <script>
+    function open_vnc() { window.open('/vnc/{{ vds_id }}/','','width=968,height=552') }
+  </script>
+{% endblock %}

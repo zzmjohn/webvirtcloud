@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Support - WebVirtCloud{% endblock %}
+{% block link %}<link href="/{{ STATIC_URL }}css/tinyeditor.css" rel="stylesheet">{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li>
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li class="active">
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li>
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Send mail Cloud Admin</h2>
+        <hr>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-block alert-success">
+          <a class="close" data-dismiss="alert">&times;</a>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post" action="/support/" id="edit-profile" class="form-horizontal">{% csrf_token %}
+          <input type="hidden" name="user_id" value="{{ request.user.id }}">
+          <select name="subject" class="input-xlarge">
+              <option value="Flavors">Unblocked</option>
+              <option value="Flavors">Orders</option>
+              <option value="VDS">ISO-images</option>
+              <option value="Flavors">Flavors</option>
+          </select>
+          <br />
+          <br />
+          <textarea name="text" id="tinyeditor" style="width: 400px; height: 200px">Hello, Cloud Admin!</textarea>
+          <br />
+          <input type="submit" class="btn btn-success" name="send" value="Submit">
+      </div> <!-- /span7 -->
+    </div> <!-- /row -->
+ 
+  <script src="/{{ STATIC_URL }}js/tiny.editor.packed.js"></script>
+  <script>
+  var editor = new TINY.editor.edit('editor', {
+    id: 'tinyeditor',
+    width: 584,
+    height: 175,
+    cssclass: 'tinyeditor',
+    controlclass: 'tinyeditor-control',
+    rowclass: 'tinyeditor-header',
+    dividerclass: 'tinyeditor-divider',
+    controls: ['bold', 'italic', 'underline', 'strikethrough', '|', 'subscript', 'superscript', '|',
+      'orderedlist', 'unorderedlist', '|', 'outdent', 'indent', '|', 'leftalign',
+      'centeralign', 'rightalign', 'blockjustify', '|', 'unformat', '|', 'undo', 'redo', 'n',
+      'image', 'hr', 'link', 'unlink', '|', 'print',],
+    footer: true,
+    fonts: ['Verdana','Arial','Georgia','Trebuchet MS'],
+    xhtml: true,
+    cssfile: 'custom.css',
+    bodyid: 'editor',
+    footerclass: 'tinyeditor-footer',
+    toggle: {text: 'source', activetext: 'wysiwyg', cssclass: 'toggle'},
+    resize: {cssclass: 'resize'}
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Home - WebVirtCloud{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li class="active">
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li>
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li>
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Wellcome, {{ request.user }}!</h2>
+        <hr>
+        <h5>Account Activity</h5>
+        <p>Last login: {{ user.last_login|date:"M j, Y H:i" }}</p>
+        {% if not is_user %}
+        <h5>Host Servers</h5>
+        <p><a href="/manage/">Hosts</a>: {{ host_count }}</p>
+        {% endif %}
+        {% if not is_user %}
+        <h5>Orders For Cloud Servers</h5>
+        <p><a href="/order/">Orders</a>: {{ orders }}</p>
+        {% endif %}
+        <h5>Cloud Servers</h5>
+        <p><a href="/servers/">Instances</a>: {{ vds_count }}</p>
+        <br>
+        <h5>Getting Help</h5>
+        {% if not is_user %}
+        <p>How setup Host Server to work with WebVirtCloud read this <a href="http://github.com/retspen/webvirtcloud">link</a>.</p>
+        {% endif %}
+        <p>How work with WebVirtCloud read this <a href="http://webvirtclud..com">link</a>.</p>
+      </div> <!-- /span7 -->
+    </div> <!-- /row -->
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Orders - WebVirtCloud{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li>
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li>
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li>
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li class="active">
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Orders To Create Virtual Instance</h2>
+        <hr>
+        {% if orders %}
+        <table class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>ID</th>
+              {% if not is_user %}
+              <th>User</th>
+              {% endif %}
+              <th>VDS Name</th>
+              <th>Flavor</th>
+              <th>Date Create</th>
+              {% if is_user %}
+              <th>Status</th>
+              {% endif %}
+              <th style="width:5px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key, value in orders.items %}
+            <tr>
+              <td>{{ key }}</td>
+              {% if not is_user %}
+              <td><a href="{% if request.user.id == value.0 %}/accounts/edit/{% else %}/users/{{ value.0 }}/{% endif %}">{{ value.1 }}</a></td>
+              {% endif %}
+              <td>{{ value.2 }}</td>
+              <td>{{ value.3 }}</td>
+              <td>{{ value.4|date:"M j, Y H:i" }}</td>
+              {% if is_user %}
+              <td>{% if value.5 == 1 %}Approved{% else %}Not Approved{% endif %}</td>
+              {% endif %}
+              <td>{% if value.5 == 0 %}
+                  <form action="/order/" method="post" style="height:5px;">{% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{ key }}">
+                    <input type="submit" class="btn btn-danger" name="delorder" value="Delete" onclick="return confirm('Are you sure?')">
+                  </form>
+                  {% else %}
+                  <a class="btn btn-danger disabled" href="#">Delete</a>
+                  {% endif %}
+              </td>
+              {% if not is_user %}
+              <td style="width:110px;">
+                {% if not hosts %}
+                <a class="btn btn-success disabled" href="#">Selecet Host</a>
+                {% else %}
+                <a href="#addModal" class="btn btn-success" data-toggle="modal">Selecet Host</a>
+                {% endif %}
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="pagination-centered">
+          <br />
+          <h4>You no have orders</h4>
+        </div>
+        {% endif %}
+        <div id="addModal" class="modal hide fade">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h3 id="addModalLabel">Select Host Server To Create VDS</h3>
+        </div>
+        <div class="modal-body">
+        <form class="form-horizontal" method="post">{% csrf_token %}
+          <fieldset><br />
+            <div class="control-group">
+              <label class="control-label">Hostname</label>
+              <div class="controls">
+                <select id="host_id">
+                  {% for key, value in hosts.items %}
+                  <option value="{{ key }}">{{ value }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+             </div>
+          </fieldset>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal">Cancel</button>
+          <a href="#" class="btn btn-success" onClick="goToPage(host_id.value);">Select</a>
+          </form>
+        </div>
+      </div> <!-- /addModal -->
+
+      </div> <!-- /span9 -->
+    </div> <!-- /row -->
+  <script type="text/javascript">
+  function goToPage(id) {
+    var url = '/newvm/' + id + '/';
+    location = url;
+  }
+  </script>
+{% endblock %}

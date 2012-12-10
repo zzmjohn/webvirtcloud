@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Instances - WebVirtCloud{% endblock %}
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked">
+          <li>
+            <a href="/home"><i class="icon-home"></i> Home</a>
+          </li>
+          <li class="active">
+            <a href="/servers"><i class="icon-th-large"></i> Instances</a>
+          </li>
+           {% if is_user %}
+          <li>
+            <a href="/support"><i class="icon-info-sign"></i> Support</a>
+          </li>
+          {% else %}
+          <li>
+            <a href="/manage"><i class="icon-pencil"></i> Hosts</a>
+          </li>
+          <li>
+            <a href="/users"><i class="icon-user"></i> Users</a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="/order"><i class="icon-gift"></i> Orders</a>
+          </li>
+          <li>
+            <a href="/flavor"><i class="icon-leaf"></i> Flavors</a>
+          </li>
+          <li>
+            <a href="/log"><i class="icon-list-alt"></i> Logs</a>
+          </li>
+        </ul>
+        {% include 'sidebar.html' %}
+      </div> <!-- /span3 -->
+      <div class="span7">
+        <h2>Instances</h2>
+        <hr>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-block alert-success">
+          <a class="close" data-dismiss="alert">&times;</a>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% if errors %}
+        {% for error in errors %}
+        <div class="alert alert-block alert-error">
+          <p>{{ error }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <a href="#addModal" class="btn btn-success" data-toggle="modal">Add Instance</a>
+        <br><br>
+        {% if servers %}
+        <table class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Instance Name</th>
+              {% if not is_user %}
+              <th>Username</th>
+              {% endif %}
+              <th>VCPU</th>
+              <th>RAM</th>
+              <th>HDD</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key, value in servers.items %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><a href="/vds/{{ key }}/">{{ value.0 }}</a></td>
+              {% if not is_user %}
+              <td><a href="{% if request.user.id == value.1 %}/accounts/edit/{% else %}/users/{{ value.1 }}/{% endif %}">{{ value.2 }}</a></td>
+              <td>{{ value.3 }}</td>
+              <td>{{ value.4 }} MB</td>
+              <td>{{ value.5 }} GB</td>
+              {% else %}
+              <td>{{ value.1 }}</td>
+              <td>{{ value.2 }} MB</td>
+              <td>{{ value.3 }} GB</td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="pagination-centered">
+          <br>
+          <h4>You no have virtual instances</h4>
+        </div>
+        {% endif %}
+        <div id="addModal" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="addModalLabel">Add Order To New Cloud Server</h3>
+          </div>
+          <div class="modal-body">
+            {% if flavors %}
+            <form method="post" action="/servers/" class="form-horizontal">{% csrf_token %}
+              <fieldset><br>
+                <div class="control-group">                     
+                  <label class="control-label" for="servername">Instance Name</label>
+                  <div class="controls">
+                    <input type="text" class="input-medium" id="server_name" name="server_name" placeholder="Name">
+                  </div> <!-- /controls -->       
+                </div> <!-- /control-group -->
+                <div class="control-group">
+                  <label class="control-label" for="flavor">Flavor Name</label>
+                  <div class="controls">
+                    {% for key, value in flavors.items %}
+                    <label class="radio">
+                      <input type="radio" name="flavor" value="{{ key }}" {% if forloop.counter == 1 %}checked="checked"{% endif %}>{{ value.0 }}</label>
+                    {% endfor %}
+                  </div>
+                </div>
+              </fieldset>
+              {% else %}
+              <div class="pagination-centered">
+                <br>
+                <h4>You no have flavors for virtual instances</h4>
+                <p style="height:80px;">Please contact your administrator {% if not is_user %}or create flavors{% endif %}</p>
+              </div>
+              {% endif %}   
+            </div>
+            <div class="modal-footer">
+              <button class="btn" data-dismiss="modal">Cancel</button>
+              {% if flavors %}
+              <input class="btn btn-success" name="addhost" type="submit" value="Submit">
+              {% endif %}
+            </form>
+            </div>
+          </div> <!-- /addModal -->
+      </div> <!-- /span7 -->
+    </div> <!-- /row -->
+{% endblock %}
