@@ -279,10 +279,10 @@ def servers(request):
 
             if is_user:
                 adm_user = User.objects.get(id=is_user.admin_id)
-                fromaddr = 'retspen@localhost'
+                fromaddr = user.username + ' <' + user.email + '>'
                 toaddr = adm_user.email
                 subject = 'New order for instance'
-                text = """Hello,\n\nUser, %s create order to new virtual instance.\nYou can see in this URL: http://www.webvirtcloud.com/order/""" % request.user.username
+                text = """Hello,\n\nUser, %s create order to new virtual instance.\n""" % request.user.username
                 mailsend(fromaddr, toaddr, subject, text)
 
     return render_to_response('servers.html', locals(), context_instance=RequestContext(request))
@@ -582,6 +582,9 @@ def support(request):
 
     """
 
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect('/login')
+
     try:
         is_user = Deligation.objects.get(user=request.user)
     except:
@@ -599,9 +602,6 @@ def support(request):
             mailsend(from_user, adm_user.email, subject, text)
             messages = []
             messages.append('Email send seccesfyl to your cloud administrator')
-
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect('/accounts/login')
 
     return render_to_response('support.html', locals(), context_instance=RequestContext(request))
 
