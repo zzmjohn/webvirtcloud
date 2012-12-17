@@ -30,7 +30,6 @@ urlpatterns = patterns('',
 
     url(r'^storage/(\d+)/$', 'polls.views.storage', name='storage'),
     url(r'^storage/(\d+)/(\w+)/$', 'polls.views.storage_pool', name='storage_pool'),
-    url(r'^storage/(\d+)/(\w+)/$', 'polls.views.storage_pool', name='storage_pool'),
 
     url(r'^snapshot/(\d+)/$', 'polls.views.snapshot', name='snapshot'),
     url(r'^snapshot/(\d+)/(\d+)/$', 'polls.views.snapshot_vds', name='snapshot_vds'),
